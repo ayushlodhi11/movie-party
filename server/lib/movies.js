@@ -1,8 +1,8 @@
 'use strict';
-var async = require('async');
-var redis = require('redis');
-var movieStorage = redis.createClient({prefix: "moviestorage"});
-var movieSession = redis.createClient({prefix: "moviesession"});
+const async = require('async');
+const redis = require('redis');
+const movieStorage = redis.createClient({prefix: "moviestorage"});
+const movieSession = redis.createClient({prefix: "moviesession"});
 
 // module.exports = function() {
 //     function createDummyData(){
@@ -19,7 +19,7 @@ module.exports.createDummyData = function (){
 }
 
 module.exports.fetchMovieSession = function(session_id, callback){
-    var a =  movieSession.get(session_id, function(err, reply) {
+    const a =  movieSession.get(session_id, function(err, reply) {
       console.log(reply,"-------r$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$eply-------")
       if(!reply) { reply = "{}" }
       callback(JSON.parse(reply));
@@ -30,7 +30,7 @@ module.exports.generateSession = function (session_id, moviestorage, user){
   movieStorage.get(moviestorage, function (error, value) {
     if (error){ return console.log(error); }
     console.log(value)
-    var data = JSON.parse(value)
+    const data = JSON.parse(value) || {}
     data.user = user
     movieSession.set(session_id, JSON.stringify(data), redis.print);
   })
@@ -45,18 +45,18 @@ module.exports.get = function (callback){
         if(keys){
             async.map(keys, function(key, cb) {
               // keys(*) dont work with prefix https://github.com/NodeRedis/node-redis
-              key = key.replace("moviestorage","") 
+              key = key.replace("moviestorage","")
               movieStorage.get(key, function (error, value) {
                     if (error){
                       callback([])
                       return cb(error);
                     }
                     console.log(value)
-                    var job = {};
+                    const job = {};
                     job['key']=key;
                     job['data']= JSON.parse(value);
                     cb(null, job);
-                }); 
+                });
             }, function (error, results) {
                if (error){
                  callback([])
@@ -70,7 +70,7 @@ module.exports.get = function (callback){
 }
 
 // function fetchMovieAction(session_id, callback){
-//     var a =  movieStorage.get(session_id, function(err, reply) {
+//     const a =  movieStorage.get(session_id, function(err, reply) {
 //       if(!reply) { reply = "{}" }
 //       callback(JSON.parse(reply));
 //     });

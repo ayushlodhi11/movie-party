@@ -1,6 +1,8 @@
 [
-    {
-        "name": "movie-party",
-        "script": "lib/index.js"
-    }
+  {
+    "name": "movie-party",
+    "script": "./index.js",
+    "exec_interpreter": "babel-node"
+  }
 ]
+

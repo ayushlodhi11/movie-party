@@ -1,11 +1,12 @@
 'use strict';
-var redis = require('redis');
-var sub = redis.createClient({prefix: "stream"});
-var pub = redis.createClient({prefix: "stream"});
-var movieStorage = redis.createClient({prefix: "movie-storage"});
+import redis from 'redis';
+
+const sub = redis.createClient({prefix: "stream"});
+const pub = redis.createClient({prefix: "stream"});
+const movieStorage = redis.createClient({prefix: "movie-storage"});
 sub.subscribe("redisstream");
 
-module.exports = function(io) {
+export default function(io) {
     io.on('connection', function(socket) {
         /*
          When the user sends a chat message, publish it to everyone (including myself) using
@@ -13,8 +14,8 @@ module.exports = function(io) {
          Notice that we are getting user's name from session.
          */
         socket.on("socketstream", function(data) {
-            var msg = JSON.parse(data);
-            var reply = JSON.stringify({
+            const msg = JSON.parse(data);
+            const reply = JSON.stringify({
                 type: 'action',
                 user: socket.handshake.session.user,
                 msg: "action",
@@ -32,8 +33,8 @@ module.exports = function(io) {
          Notice that we are getting user's name from session.
          */
         socket.on('joinstream', function(data) {
-            var msg = JSON.parse(data);
-            var reply = JSON.stringify({
+            const msg = JSON.parse(data);
+            const reply = JSON.stringify({
                 type: 'join',
                 user: socket.handshake.session.user,
                 msg: ' joined the channel',
@@ -50,14 +51,14 @@ module.exports = function(io) {
          */
         sub.on('message', function(channel, message) {
             console.log("--channel--",message)
-            var msg = JSON.parse(message);
+            const msg = JSON.parse(message);
             socket.emit(msg.session_id, message);
         });
     })
 }
 
 // function fetchMovieAction(session_id, callback){
-//     var a =  movieStorage.get(session_id, function(err, reply) {
+//     const a =  movieStorage.get(session_id, function(err, reply) {
 //       if(!reply) { reply = "{}" }
 //       callback(JSON.parse(reply));
 //     });
