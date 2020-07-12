@@ -20,6 +20,7 @@ module.exports = function(io) {
                 user: socket.handshake.session.user,
                 msg: "action",
                 session_id: msg.session_id,
+                user_id: msg.user_id,
                 moviedata: msg.moviedata
             });
             // saveMovieAction(msg.session_id, msg.moviedata)

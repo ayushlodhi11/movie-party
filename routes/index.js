@@ -36,7 +36,7 @@ function generateStreamLink(req, res){
 }
 
 function renderHomePage(req, res) {
-    // movies.createDummyData()
+    movies.createDummyData()
     var serverName = getServer();
     //save user from previous session (if it exists)
     var user = req.session.user;
