@@ -5,7 +5,7 @@
 node_modules/
 *.log
 coverage/
-build/test_coverage.txt
+dist/
 # misc
 .env
 *._.DS_Store

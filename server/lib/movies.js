@@ -1,8 +1,7 @@
-'use strict';
-const async = require('async');
-const redis = require('redis');
-const movieStorage = redis.createClient({prefix: "moviestorage"});
-const movieSession = redis.createClient({prefix: "moviesession"});
+import async from 'async';
+import redis from 'redis';
+const movieStorage = redis.createClient({ prefix: 'moviestorage' });
+const movieSession = redis.createClient({ prefix: 'moviesession' });
 
 // module.exports = function() {
 //     function createDummyData(){
@@ -12,62 +11,98 @@ const movieSession = redis.createClient({prefix: "moviesession"});
 //     }
 // }
 
-module.exports.createDummyData = function (){
-  movieStorage.set("1", JSON.stringify({movie_name: "Race3", movie_id: 1, session_id: "a12345", user: "Raj"}), redis.print)
-  movieStorage.set("2", JSON.stringify({movie_name: "Thugs of hindustan", movie_id: 2, session_id: "b4567", user: "Raj"}), redis.print)
-  movieStorage.set("3", JSON.stringify({movie_name: "Pineapple express", movie_id: 3, session_id: "c23452", user: "Raj"}), redis.print)
-}
+export const createDummyData = () => {
+	movieStorage.set(
+		'1',
+		JSON.stringify({
+			movie_name: 'Race3',
+			movie_id: 1,
+			session_id: 'a12345',
+			user: 'Raj',
+		}),
+		redis.print,
+	);
+	movieStorage.set(
+		'2',
+		JSON.stringify({
+			movie_name: 'Thugs of hindustan',
+			movie_id: 2,
+			session_id: 'b4567',
+			user: 'Raj',
+		}),
+		redis.print,
+	);
+	movieStorage.set(
+		'3',
+		JSON.stringify({
+			movie_name: 'Pineapple express',
+			movie_id: 3,
+			session_id: 'c23452',
+			user: 'Raj',
+		}),
+		redis.print,
+	);
+};
 
-module.exports.fetchMovieSession = function(session_id, callback){
-    const a =  movieSession.get(session_id, function(err, reply) {
-      console.log(reply,"-------r$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$eply-------")
-      if(!reply) { reply = "{}" }
-      callback(JSON.parse(reply));
-    });
-}
+export const fetchMovieSession = (session_id, callback) => {
+	movieSession.get(session_id, (err, reply) => {
+		if (err) console.log('err------------');
+		if (!reply) {
+			reply = '{}';
+		}
+		callback(JSON.parse(reply));
+	});
+};
 
-module.exports.generateSession = function (session_id, moviestorage, user){
-  movieStorage.get(moviestorage, function (error, value) {
-    if (error){ return console.log(error); }
-    console.log(value)
-    const data = JSON.parse(value) || {}
-    data.user = user
-    movieSession.set(session_id, JSON.stringify(data), redis.print);
-  })
-}
+export const generateSession = (session_id, moviestorage, user, callback) => {
+	movieStorage.get(moviestorage, (error, value) => {
+		if (error) {
+			return console.log(error);
+		}
+		const data = JSON.parse(value) || {};
+		data.user = user;
+		movieSession.set(session_id, JSON.stringify(data), redis.print);
+		callback(data);
+	});
+};
 
-module.exports.get = function (callback){
-    movieStorage.keys('moviestorage*', function (err, keys) {
-        if (err){
-          callback([])
-          return console.log(err);
-        }
-        if(keys){
-            async.map(keys, function(key, cb) {
-              // keys(*) dont work with prefix https://github.com/NodeRedis/node-redis
-              key = key.replace("moviestorage","")
-              movieStorage.get(key, function (error, value) {
-                    if (error){
-                      callback([])
-                      return cb(error);
-                    }
-                    console.log(value)
-                    const job = {};
-                    job['key']=key;
-                    job['data']= JSON.parse(value);
-                    cb(null, job);
-                });
-            }, function (error, results) {
-               if (error){
-                 callback([])
-                 return console.log(err);
-               }
-               console.log(results);
-               callback(results)
-            });
-        }
-    });
-}
+export const get = callback => {
+	movieStorage.keys('moviestorage*', (err, keys) => {
+		if (err) {
+			callback([]);
+			return console.log(err);
+		}
+		if (keys) {
+			console.log(keys);
+			async.map(
+				keys,
+				(key, cb) => {
+					// keys(*) dont work with prefix https://github.com/NodeRedis/node-redis
+					key = key.replace('moviestorage', '');
+					movieStorage.get(key, (error, value) => {
+						if (error) {
+							callback([]);
+							return cb(error);
+						}
+						console.log(value);
+						const job = {};
+						job['key'] = key;
+						job['data'] = JSON.parse(value);
+						cb(null, job);
+					});
+				},
+				(error, results) => {
+					if (error) {
+						callback([]);
+						return console.log(err);
+					}
+					console.log(results);
+					callback(results);
+				},
+			);
+		}
+	});
+};
 
 // function fetchMovieAction(session_id, callback){
 //     const a =  movieStorage.get(session_id, function(err, reply) {

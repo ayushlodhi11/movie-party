@@ -1,60 +1,55 @@
 'use strict';
 import redis from 'redis';
 
-const sub = redis.createClient({prefix: "stream"});
-const pub = redis.createClient({prefix: "stream"});
-const movieStorage = redis.createClient({prefix: "movie-storage"});
-sub.subscribe("redisstream");
+const sub = redis.createClient({ prefix: 'stream' });
+const pub = redis.createClient({ prefix: 'stream' });
+sub.subscribe('redisstream');
 
 export default function(io) {
-    io.on('connection', function(socket) {
-        /*
+	io.on('connection', function(socket) {
+		/*
          When the user sends a chat message, publish it to everyone (including myself) using
          Redis' 'pub' client we created earlier.
          Notice that we are getting user's name from session.
          */
-        socket.on("socketstream", function(data) {
-            const msg = JSON.parse(data);
-            const reply = JSON.stringify({
-                type: 'action',
-                user: socket.handshake.session.user,
-                msg: "action",
-                session_id: msg.session_id,
-                moviedata: msg.moviedata
-            });
-            // saveMovieAction(msg.session_id, msg.moviedata)
-            console.log(msg.session_id,"------server-----------",reply)
-            pub.publish("redisstream", reply);
-        });
+		socket.on('socketstream', function(msg) {
+			const message = JSON.parse(msg);
+			const reply = {
+				type: 'action',
+				user: message.user,
+				msg: 'action',
+				session_id: message.session_id,
+				moviedata: message.moviedata,
+			};
+			pub.publish('redisstream', JSON.stringify(reply));
+		});
 
-        /*
+		/*
          When a user joins the channel, publish it to everyone (including myself) using
          Redis' 'pub' client we created earlier.
          Notice that we are getting user's name from session.
          */
-        socket.on('joinstream', function(data) {
-            const msg = JSON.parse(data);
-            const reply = JSON.stringify({
-                type: 'join',
-                user: socket.handshake.session.user,
-                msg: ' joined the channel',
-                session_id: msg.session_id,
-                moviedata: {}
-            });
-            console.log(msg.session_id,"------join-----------",reply)
-            pub.publish("redisstream", reply);
-        });
+		socket.on('joinstream', function(data) {
+			const msg = JSON.parse(data);
+			const reply = {
+				type: 'join',
+				user: msg.user,
+				msg: ' joined the channel',
+				session_id: msg.session_id,
+				moviedata: {},
+			};
+			pub.publish('redisstream', JSON.stringify(reply));
+		});
 
-        /*
+		/*
          Use Redis' 'sub' (subscriber) client to listen to any message from Redis to server.
          When a message arrives, send it back to browser using socket.io
          */
-        sub.on('message', function(channel, message) {
-            console.log("--channel--",message)
-            const msg = JSON.parse(message);
-            socket.emit(msg.session_id, message);
-        });
-    })
+		sub.on('message', function(channel, message) {
+			const msg = JSON.parse(message);
+			socket.emit(msg.session_id, message);
+		});
+	});
 }
 
 // function fetchMovieAction(session_id, callback){
