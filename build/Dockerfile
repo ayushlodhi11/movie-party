@@ -21,9 +21,10 @@ RUN . "$NVM_DIR/nvm.sh" && npm install pm2 -g --silent
 COPY package.json ./
 
 RUN . "$NVM_DIR/nvm.sh" && yarn install
-RUN . "$NVM_DIR/nvm.sh" && yarn build
 
 COPY . .
+
+RUN . "$NVM_DIR/nvm.sh" && yarn build
 
 ENTRYPOINT ["build/docker-entrypoint.sh"]
 

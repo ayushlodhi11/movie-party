@@ -6,7 +6,7 @@
 	"scripts": {
 		"start": "nodemon server/index.js --exec babel-node --presets @babel/preset-env",
 		"dev": "babel-node tools/srcServer.js",
-		"build": "ENV='production' babel-node ./tools/build.js",
+		"build": "ENV='production' babel-node tools/build.js",
 		"prod_start": "NODE_ENV=production pm2 start pm2.json && pm2 log",
 		"prod_stop": "pm2 stop movie-party"
 	},
