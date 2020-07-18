@@ -3,10 +3,10 @@
 .vscode/
 .git/
 node_modules/
+dist/
 *.log
 
 # misc
 .env
 *._.DS_Store
 *.DS_Store
-package-lock.json

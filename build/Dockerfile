@@ -1,6 +1,6 @@
 # base image
-FROM node:8.11.2
-ENV NODE_VERSION 8.11.2
+FROM node:12.13.0
+ENV NODE_VERSION 12.13.0
 
 # set working directory
 RUN mkdir /usr/src/app
@@ -18,11 +18,13 @@ RUN . "$NVM_DIR/nvm.sh" && npm install pm2 -g --silent
 
 # Install nvm with node and npm
 
-COPY package.json yarn.lock ./
+COPY package.json ./
 
 RUN . "$NVM_DIR/nvm.sh" && yarn install
 
 COPY . .
+
+RUN . "$NVM_DIR/nvm.sh" && yarn build
 
 ENTRYPOINT ["build/docker-entrypoint.sh"]
 

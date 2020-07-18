@@ -5,13 +5,15 @@
 node_modules/
 *.log
 coverage/
-build/test_coverage.txt
+dist/
 # misc
 .env
 *._.DS_Store
 *.DS_Store
 package-lock.json
 .idea/*
+pnpm-debug.log
+yarn.lock
 
 #Ignore temp and swp files
 *~
