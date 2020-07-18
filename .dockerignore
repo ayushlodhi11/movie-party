@@ -3,7 +3,9 @@
 .vscode/
 .git/
 node_modules/
+dist/
 *.log
+yarn.lock
 
 # misc
 .env
