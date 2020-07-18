@@ -11,8 +11,9 @@ dist/
 *._.DS_Store
 *.DS_Store
 package-lock.json
-yarn.lock
 .idea/*
+pnpm-debug.log
+yarn.lock
 
 #Ignore temp and swp files
 *~

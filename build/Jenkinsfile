@@ -1,0 +1,93 @@
+def buildPassed = true
+def testRun = false
+def testPassed = false
+
+pipeline {
+  environment {
+    gcrLocation = "https://asia.gcr.io"
+    registry = "asia.gcr.io/gocomet-deployment/movie-party"
+    credentials = "gcr:gocomet-deployment"
+    app = "movie-party"
+    dockerImage = ''
+  }
+  agent any
+  stages {
+    stage('Building image') {
+      steps {
+        script {
+         env.nodeEnv = "$BRANCH_NAME" == "master" ? "production" : "$BRANCH_NAME"
+         def image_name = registry + ":$GIT_COMMIT"
+         dockerImage = docker.build(image_name, "-f ./build/Dockerfile .")
+        }
+      }
+    }
+    stage('Deploy Image') {
+      steps{
+         script {
+         docker.withRegistry(gcrLocation, credentials) {
+             dockerImage.push("${env.GIT_COMMIT}")
+         }
+        }
+      }
+    }
+    stage('Deploy') {
+      when { anyOf { branch 'master'; } }
+      steps{
+         script {
+          sh """
+            kubectl -n staging set image deployment.v1.apps/${app} ${app}=${registry}:${env.GIT_COMMIT}
+          """
+        }
+      }
+    }
+    stage('Mark Image Env & Remove Unused docker image') {
+      steps{
+        script {
+          docker.withRegistry(gcrLocation, credentials) {
+            dockerImage.push(env.nodeEnv)
+          }
+          sh "docker rmi $registry:$GIT_COMMIT"
+        }
+      }
+    }
+  }
+  post {
+      success {
+        // 2. Notify Sentry
+        // 3. Notify Slack
+        sh """
+        #! /bin/sh
+
+        GIT_EMAIL=\$(git --no-pager show -s --format='%ae' $GIT_COMMIT)
+
+        sudo curl -X POST -H 'Content-type: application/json' --data  '{
+          "text":"Deployed To $GIT_BRANCH",
+          "attachments": [
+                  {
+                      "text": "<https://github.com/ayushlodhi11/movie-party|movie-party> \n <$BUILD_URL|Jenkins Pipeline> \n User: '\$GIT_EMAIL'",
+                      "color": "#7CD197",
+                  }
+              ]
+        }' https://hooks.slack.com/services/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
+        """
+      }
+      failure {
+        // Notify Slack on Faliure
+        sh """
+        #! /bin/sh
+
+        GIT_EMAIL=\$(git --no-pager show -s --format='%ae' $GIT_COMMIT)
+
+        sudo curl -X POST -H 'Content-type: application/json' --data  '{
+          "text":"$GIT_BRANCH Build Failed",
+          "attachments": [
+                  {
+                      "text": "<https://github.com/ayushlodhi11/movie-party|movie-party> \n <$BUILD_URL|Jenkins Pipeline> \n User: '\$GIT_EMAIL'",
+                      "color": "#F35A00",
+                  }
+              ]
+        }' https://hooks.slack.com/services/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
+        """
+      }
+  }
+}
