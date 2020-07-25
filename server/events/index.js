@@ -1,8 +1,8 @@
 'use strict';
-import redis from 'redis';
+import createClient from '../lib/redis-host';
 
-const sub = redis.createClient({ prefix: 'stream' });
-const pub = redis.createClient({ prefix: 'stream' });
+const sub = createClient({ prefix: 'stream' });
+const pub = createClient({ prefix: 'stream' });
 sub.subscribe('redisstream');
 
 export default function(io) {
