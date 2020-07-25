@@ -45,6 +45,7 @@ pipeline {
         script {
           docker.withRegistry(gcrLocation, credentials) {
             dockerImage.push(env.nodeEnv)
+            dockerImage.push("master")
           }
           sh "docker rmi $registry:$GIT_COMMIT"
         }
