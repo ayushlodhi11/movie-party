@@ -1,13 +1,13 @@
 import express from 'express';
 import path from 'path';
-import redis from 'redis';
+import createClient from './lib/redis-host';
 import cors from 'cors';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
 import routes from './routes/index';
 import { promisify } from 'util';
 
-const session = redis.createClient();
+const session = createClient({ prefix: 'auth' });
 const setAsync = promisify(session.set).bind(session);
 const getAsync = promisify(session.get).bind(session);
 

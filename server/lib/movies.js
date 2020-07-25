@@ -1,7 +1,8 @@
 import async from 'async';
 import redis from 'redis';
-const movieStorage = redis.createClient({ prefix: 'moviestorage' });
-const movieSession = redis.createClient({ prefix: 'moviesession' });
+import createClient from './redis-host';
+const movieStorage = createClient({ prefix: 'moviestorage' });
+const movieSession = createClient({ prefix: 'moviesession' });
 
 // module.exports = function() {
 //     function createDummyData(){
