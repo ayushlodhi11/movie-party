@@ -1,7 +1,7 @@
 [
 	{
 		"name": "movie-party",
-		"script": "tools/srcServer.js",
+		"script": "server/index.js",
 		"exec_interpreter": "babel-node"
 	}
 ]
